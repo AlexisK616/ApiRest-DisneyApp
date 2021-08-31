@@ -12,5 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface IPeliculaSerieRepository extends JpaRepository<PeliculaSerie,Long>{
     Optional<PeliculaSerie> findByTitulo(String titulo);
     Optional<PeliculaSerie> findByGenero(Optional<Genero> genero);
-    
+    boolean existsByTitulo(String titulo);
 }

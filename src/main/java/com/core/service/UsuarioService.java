@@ -1,6 +1,7 @@
 package com.core.service;
 
 import com.core.domain.Usuario;
+import com.core.exceptions.BadRequestException;
 import com.core.repository.IUsuarioRepository;
 import java.util.*;
 import lombok.AllArgsConstructor;
@@ -45,16 +46,12 @@ public class UsuarioService implements UserDetailsService {
     }
     
     @Transactional
-    public ResponseEntity<?> registroUsuario(Usuario usuario) {
-        Map<String, Object> response = new HashMap();
+    public Usuario registroUsuario(Usuario usuario) {
         if (!userRepository.existsByEmail(usuario.getEmail())) {
             usuario.setContraseña(BCrypt.hashpw(usuario.getContraseña(), BCrypt.gensalt()));
-            userRepository.save(usuario);
-            response.put("mensaje", "usuario registrado existosamente, para mas informacion revisa el email");
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+            return userRepository.save(usuario);
         }else{
-            response.put("error", "Usuario Exostente");
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BadRequestException("User already exists");
         }  
     }
 }

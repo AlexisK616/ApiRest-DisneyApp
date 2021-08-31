@@ -1,6 +1,7 @@
 package com.core.service;
 
 import com.core.domain.PeliculaSerie;
+import com.core.exceptions.*;
 import com.core.repository.IGeneroRepository;
 import com.core.repository.IPeliculaSerieRepository;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class PeliculaSerieService {
     @Transactional(readOnly = true)
     public ArrayList<PeliculaSerie> getAllBySort(String sortType) {
         if (null == sortType) {
-            return null;
+            throw new BadRequestException("Put A Sort");
         } else {
             switch (sortType) {
                 case "ASC":
@@ -40,22 +41,38 @@ public class PeliculaSerieService {
 
     @Transactional(readOnly = true)
     public Optional<PeliculaSerie> getById(Long id) {
-        return peliSerieRepo.findById(id);
+        if(peliSerieRepo.existsById(id)){
+          return peliSerieRepo.findById(id);
+        }else{
+            throw new NotFoundException("Id not Found");
+        }
     }
 
     @Transactional(readOnly = true)
     public Optional<PeliculaSerie> getByTitulo(String titulo) {
-        return peliSerieRepo.findByTitulo(titulo);
+        if(peliSerieRepo.existsByTitulo(titulo)){
+           return peliSerieRepo.findByTitulo(titulo);  
+        }else{
+            throw new NotFoundException("Title Not Found");
+        }
     }
 
     @Transactional(readOnly = true)
     public Optional<PeliculaSerie> getByGenero(Long id) {
-        return peliSerieRepo.findByGenero(generoRepo.findById(id));
+        if(generoRepo.existsById(id)){
+           return peliSerieRepo.findByGenero(generoRepo.findById(id));
+        }else{
+            throw new NotFoundException("Genre Not Found");
+        }
     }
 
     @Transactional
-    public PeliculaSerie add(PeliculaSerie peliserie) {
-        return peliSerieRepo.save(peliserie);
+    public PeliculaSerie add(PeliculaSerie peliserie){
+        if(!peliSerieRepo.existsById(peliserie.getIdpeliserie())){
+            return peliSerieRepo.save(peliserie); 
+        }else{
+            throw new BadRequestException("Id Movie Already Exists");
+        }
     }
 
     @Transactional
@@ -69,7 +86,13 @@ public class PeliculaSerieService {
         if (peliSerieRepo.existsById(id)) {
             pelicula.setIdpeliserie(id);
            return peliSerieRepo.save(pelicula);
+        }else{
+            throw new BadRequestException("Id not exists");
         }
-        return null;
+    }
+    
+    @Transactional 
+    public boolean existsId(Long id){
+        return peliSerieRepo.existsById(id);
     }
 }
